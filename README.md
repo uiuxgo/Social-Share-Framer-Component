@@ -4,7 +4,7 @@
 
 ## 📸 Приклад інтерфейсу
 
-![Налаштування компонента Social Share](<img width="1296" height="964" alt="CleanShot 2026-03-03 at 14 51 41@2x" src="https://github.com/user-attachments/assets/7a74d0ea-3441-4987-aaa5-aeef2182a20f" />)
+<img width="1296" height="964" alt="CleanShot 2026-03-03 at 14 51 41@2x" src="https://github.com/user-attachments/assets/7a74d0ea-3441-4987-aaa5-aeef2182a20f" />
 
 ## 🚀 Основні можливості
 
