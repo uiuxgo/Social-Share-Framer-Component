@@ -4,7 +4,7 @@
 
 ## 📸 Приклад інтерфейсу
 
-![Приклад інтерфейсу](https://github.com/user-attachments/assets/9d32ff7f-c0c4-41de-b7bf-5ba6c18a1bd3)
+![Приклад інтерфейсу](https://github.com/user-attachments/assets/01a3c273-d4a6-4d38-8da9-650afb72a6db)
 
 
 ## 🚀 Основні можливості
