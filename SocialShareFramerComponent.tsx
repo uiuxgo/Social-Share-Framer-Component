@@ -26,8 +26,56 @@ export const PLATFORM_NAMES = [
 ]
 
 export default function SocialShare(props) {
-    const { type, colors, iconSize, border } = props
+    const { type, colors, iconSize, border, hover } = props
     const [shareUrl, setShareUrl] = React.useState(props.shareLink === "url" ? props.shareUrl : "")
+    const [isHovered, setIsHovered] = React.useState(false)
+
+    const defaultBackgroundColor =
+        colors.fillColorType === "custom"
+            ? colors.fillColor
+            : Color.toString(Color.alpha(Color(BRAND_COLORS[type]), colors.fillOpacity))
+
+    const defaultIconColor =
+        colors.iconColorType === "custom" ? colors.iconColor : Color.toString(Color.alpha(Color(BRAND_COLORS[type]), 1))
+
+    const defaultBorderColor =
+        border?.colorType === "custom" ? border.color : Color.toString(Color.alpha(Color(BRAND_COLORS[type]), 1))
+
+    let currentBackgroundColor = defaultBackgroundColor
+    let currentIconColor = defaultIconColor
+    let currentBorderColor = defaultBorderColor
+    let currentScale = 1
+    let currentOpacity = 1
+
+    if (isHovered && hover) {
+        if (hover.scale !== undefined) currentScale = hover.scale
+        if (hover.opacity !== undefined) currentOpacity = hover.opacity
+        if (hover.fillColorType === "custom") {
+            currentBackgroundColor = hover.fillColor
+        } else {
+            currentBackgroundColor = Color.toString(
+                Color.alpha(Color(BRAND_COLORS[type]), hover.fillOpacity ?? 1)
+            )
+        }
+
+        if (hover.iconColorType === "custom") {
+            currentIconColor = hover.iconColor
+        } else {
+            currentIconColor = Color.toString(
+                Color.alpha(Color(BRAND_COLORS[type]), hover.iconOpacity ?? 1)
+            )
+        }
+
+        if (border) {
+            if (hover.borderColorType === "custom") {
+                currentBorderColor = hover.borderColor
+            } else {
+                currentBorderColor = Color.toString(
+                    Color.alpha(Color(BRAND_COLORS[type]), hover.borderOpacity ?? 1)
+                )
+            }
+        }
+    }
 
     React.useEffect(() => {
         if (props.shareLink === "currentPage") {
@@ -87,46 +135,50 @@ export default function SocialShare(props) {
             rel={props.newTab ? "noopener noreferrer" : undefined}
             aria-label={PLATFORM_NAMES[type]}
             onClick={type === "copyUrl" ? copyToClipboard : undefined}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onFocus={() => setIsHovered(true)}
+            onBlur={() => setIsHovered(false)}
             style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor:
-                    colors.fillColorType === "custom"
-                        ? colors.fillColor
-                        : Color.toString(Color.alpha(Color(BRAND_COLORS[type]), colors.fillOpacity)),
+                backgroundColor: "transparent",
                 borderRadius: borderRadius,
                 padding: padding,
                 cursor: "pointer",
+                transition: "transform 0.25s ease-in-out, opacity 0.25s ease-in-out",
+                transform: `scale(${currentScale})`,
+                opacity: currentOpacity,
                 ...props.style,
+                overflow: "visible",
             }}
         >
+            <div
+                style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundColor: currentBackgroundColor,
+                    borderWidth: border
+                        ? border.widthIsMixed
+                            ? `${border.widthTop}px ${border.widthRight}px ${border.widthBottom}px ${border.widthLeft}px`
+                            : `${border.width}px`
+                        : 0,
+                    borderStyle: border?.style || "solid",
+                    borderColor: border ? currentBorderColor : "transparent",
+                    borderRadius: borderRadius,
+                    pointerEvents: "none",
+                    backgroundClip: "padding-box",
+                    transition: "background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, border-width 0.25s ease-in-out",
+                }}
+            />
             <SocialIcon
                 type={type}
                 size={iconSize}
-                color={
-                    colors.iconColorType === "custom"
-                        ? colors.iconColor
-                        : BRAND_COLORS[type]
-                }
+                color={currentIconColor}
                 customIcon={props.customIcon}
+                style={{ overflow: "visible", transition: "color 0.25s ease-in-out", position: "relative" }}
             />
-            {border && (
-                <div
-                    style={{
-                        position: "absolute",
-                        inset: 0,
-                        borderWidth: border.widthIsMixed
-                            ? `${border.widthTop}px ${border.widthRight}px ${border.widthBottom}px ${border.widthLeft}px`
-                            : `${border.width}px`,
-                        borderStyle: border.style,
-                        borderColor:
-                            border.colorType === "custom" ? border.color : BRAND_COLORS[type],
-                        borderRadius: borderRadius,
-                        pointerEvents: "none",
-                    }}
-                />
-            )}
         </a>
     )
 }
@@ -148,6 +200,7 @@ function SocialIcon(props) {
                             opacity: customIcon.opacity,
                             color: color,
                             pointerEvents: "none",
+                            transition: "all 0.25s ease-in-out",
                         }}
                         dangerouslySetInnerHTML={{
                             __html: customIcon.svg
@@ -172,6 +225,7 @@ function SocialIcon(props) {
                         objectFit: customIcon.sizing as any,
                         objectPosition: "center",
                         pointerEvents: "none",
+                        transition: "all 0.25s ease-in-out",
                     }}
                 />
             )
@@ -252,7 +306,7 @@ function SocialIcon(props) {
             fill={fill ? "currentColor" : "none"}
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ display: "block" }}
+            style={{ display: "block", overflow: "visible", ...(props.style || {}) }}
         >
             {contents}
         </svg>
@@ -450,6 +504,93 @@ addPropertyControls(SocialShare, {
                 min: 0,
                 max: 1,
                 step: 0.01,
+            },
+        },
+    },
+    hover: {
+        type: ControlType.Object,
+        optional: true,
+        buttonTitle: "Hover Effect",
+        controls: {
+            scale: {
+                type: ControlType.Number,
+                defaultValue: 1.1,
+                min: 0,
+                max: 2,
+                step: 0.05,
+            },
+            opacity: {
+                type: ControlType.Number,
+                defaultValue: 1,
+                min: 0,
+                max: 1,
+                step: 0.05,
+            },
+            fillColorType: {
+                type: ControlType.Enum,
+                defaultValue: "brand",
+                options: ["brand", "custom"],
+                optionTitles: ["Brand", "Custom"],
+                displaySegmentedControl: true,
+                title: "Fill",
+            },
+            fillColor: {
+                type: ControlType.Color,
+                defaultValue: "#000",
+                hidden: (props) => props.fillColorType !== "custom",
+                title: " ",
+            },
+            fillOpacity: {
+                type: ControlType.Number,
+                defaultValue: 1,
+                min: 0,
+                max: 1,
+                step: 0.01,
+                hidden: (props) => props.fillColorType !== "brand",
+            },
+            borderColorType: {
+                type: ControlType.Enum,
+                defaultValue: "brand",
+                options: ["brand", "custom"],
+                optionTitles: ["Brand", "Custom"],
+                displaySegmentedControl: true,
+                title: "Border",
+            },
+            borderColor: {
+                type: ControlType.Color,
+                defaultValue: "#FFF",
+                hidden: (props) => props.borderColorType !== "custom",
+                title: " ",
+            },
+            borderOpacity: {
+                type: ControlType.Number,
+                defaultValue: 1,
+                min: 0,
+                max: 1,
+                step: 0.01,
+                hidden: (props) => props.borderColorType !== "brand",
+            },
+            iconColorType: {
+                type: ControlType.Enum,
+                defaultValue: "brand",
+                options: ["brand", "custom"],
+                optionTitles: ["Brand", "Custom"],
+                displaySegmentedControl: true,
+                title: "Icon",
+            },
+            iconColor: {
+                type: ControlType.Color,
+                defaultValue: "#FFF",
+                hidden: (props) => props.iconColorType !== "custom",
+                title: " ",
+            },
+            iconOpacity: {
+                type: ControlType.Number,
+                defaultValue: 1,
+                min: 0,
+                max: 1,
+                step: 0.01,
+                hidden: (props) => props.iconColorType !== "brand",
             },
         },
     },
