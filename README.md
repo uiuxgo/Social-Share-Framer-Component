@@ -4,7 +4,8 @@
 
 ## 📸 Приклад інтерфейсу
 
-<img width="1296" height="964" alt="CleanShot 2026-03-03 at 14 51 41@2x" src="https://github.com/user-attachments/assets/7a74d0ea-3441-4987-aaa5-aeef2182a20f" />
+![Приклад інтерфейсу](https://github.com/user-attachments/assets/9d32ff7f-c0c4-41de-b7bf-5ba6c18a1bd3)
+
 
 ## 🚀 Основні можливості
 
